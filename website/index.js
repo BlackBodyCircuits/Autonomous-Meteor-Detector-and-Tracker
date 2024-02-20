@@ -101,15 +101,17 @@ async function FNext(){
 
     imageUrl = "https://github.com/BlackBodyCircuits/Autonomous-Meteor-Detector-and-Tracker/blob/main/test_json.json"
 
+    // server address
+    var server = "http://127.0.0.1:8080"
       // Create a new XMLHttpRequest object
     var xhr = new XMLHttpRequest();
 
     // Define the URL of the JSON file you want to fetch
-    var jsonUrl = "https://storefrontgateway.saveonfoods.com/api/stores/1982/categories/30791/groupby?productCount=1000&take=10&skip=1";
+    var jsonUrl = server + "/get_img&id=2";
 
     // Configure the request
     xhr.open('GET', jsonUrl, true); // true for asynchronous
-    xhr.setRequestHeader("Access-Control-Allow-Headers", "X-Requested-With, content-type");
+    // xhr.setRequestHeader("Access-Control-Allow-Headers", "X-Requested-With, content-type");
 
     // Set the responseType to 'json' to automatically parse JSON response
     xhr.responseType = 'json';
@@ -118,8 +120,13 @@ async function FNext(){
     xhr.onload = function () {
         if (xhr.status === 200) {
             // Access the parsed JSON response
-            var jsonResponse = xhr.response;
-            console.log(jsonResponse); // Or do something with the JSON data
+            var res = xhr.response;
+            console.log(res); // Or do something with the JSON data
+            var im_name = res["name"]
+            var im_src = server + res["url"]
+
+            document.getElementById('caption').innerHTML  = im_name;
+            document.getElementById('slideshow').src = im_src;
         } else {
             console.error('Failed to fetch JSON:', xhr.status);
         }
@@ -145,7 +152,43 @@ function FPrev(){
     //since we cant use if just check it with mod
     currentIndex = currentIndex % 5
     //invoke showpic
-    ShowPic();
+    var server = "http://127.0.0.1:8080"
+      // Create a new XMLHttpRequest object
+    var xhr = new XMLHttpRequest();
+
+    // Define the URL of the JSON file you want to fetch
+    var jsonUrl = server + "/get_img&id=1";
+
+    // Configure the request
+    xhr.open('GET', jsonUrl, true); // true for asynchronous
+    // xhr.setRequestHeader("Access-Control-Allow-Headers", "X-Requested-With, content-type");
+
+    // Set the responseType to 'json' to automatically parse JSON response
+    xhr.responseType = 'json';
+
+    // Define a function to handle the successful response
+    xhr.onload = function () {
+        if (xhr.status === 200) {
+            // Access the parsed JSON response
+            var res = xhr.response;
+            console.log(res); // Or do something with the JSON data
+            var im_name = res["name"]
+            var im_src = server + res["url"]
+
+            document.getElementById('caption').innerHTML  = im_name;
+            document.getElementById('slideshow').src = im_src;
+        } else {
+            console.error('Failed to fetch JSON:', xhr.status);
+        }
+    };
+
+    // Define a function to handle errors
+    xhr.onerror = function () {
+        console.error('Error fetching JSON');
+    };
+
+    // Send the request
+    xhr.send();
 }
 
 function FAuto(){
