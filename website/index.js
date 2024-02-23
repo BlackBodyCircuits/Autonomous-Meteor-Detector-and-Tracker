@@ -16,6 +16,7 @@ var arrPicFrame = [];                                                       //an
 var currentIndex = 0;                                                       //a current displayed picture index value
 var auto = false;                                                           //a flag to determine if auto is triggered
 var timerID = 0;                                                            //timer
+var imgID = 0;
 
 //function will be called on the window load event
 function fInit(){
@@ -61,45 +62,6 @@ async function FNext(){
     //if it is outside the bounds of the array, wrap it
     //since we cant use if just check it with mod
     currentIndex = currentIndex % 5;
-    //invoke showpic
-    //ShowPic();
-
-//     fetch("https://storefrontgateway.saveonfoods.com/api/stores/1982/categories/30791/groupby?productCount=1000&take=10&skip=1")
-//   .then((response) => response.json())
-//   .then((json) => {
-//     console.log(json["items"][0]["items"]["name"])
-//     //console.log(json["items"][0]["items"]["name"])
-//     });
-
-
-    // URL of the image you want to load
-    var imageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9d/Fireball_imaged_by_the_Perenjori_DFN_station.jpg/330px-Fireball_imaged_by_the_Perenjori_DFN_station.jpg";
-
-    // Fetch the image
-    // fetch(imageUrl)
-    //     .then(response => response.blob()) // Get the response as a Blob
-    //     .then(blob => {
-    //         // Create a new FileReader object
-    //         var reader = new FileReader();
-
-    //         // Define a function to handle the FileReader's load event
-    //         reader.onload = function() {
-    //             // Set the 'src' attribute of the <img> element to the image data URL
-    //             document.getElementById('slideshow').src = reader.result;
-    //         }
-
-    //         // Read the image blob as a data URL
-    //         reader.readAsDataURL(blob);
-    //     })
-    //     .catch(error => {
-    //         console.error('Error fetching the image:', error);
-    //     });
-
-
-      // URL of the image you want to load
-      //var imageUrl = "https://example.com/image.jpg";
-
-    imageUrl = "https://github.com/BlackBodyCircuits/Autonomous-Meteor-Detector-and-Tracker/blob/main/test_json.json"
 
     // server address
     var server = "http://127.0.0.1:8080"
@@ -107,7 +69,7 @@ async function FNext(){
     var xhr = new XMLHttpRequest();
 
     // Define the URL of the JSON file you want to fetch
-    var jsonUrl = server + "/get_img&id=2";
+    var jsonUrl = server + "/get_img&id=" + String(imgID += 1);
 
     // Configure the request
     xhr.open('GET', jsonUrl, true); // true for asynchronous
@@ -157,7 +119,7 @@ function FPrev(){
     var xhr = new XMLHttpRequest();
 
     // Define the URL of the JSON file you want to fetch
-    var jsonUrl = server + "/get_img&id=1";
+    var jsonUrl = server + "/get_img&id=" + String(imgID -= 1);
 
     // Configure the request
     xhr.open('GET', jsonUrl, true); // true for asynchronous
