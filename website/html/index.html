@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AMDAT Website</title>
+    <link rel="stylesheet" href="../css/sidebar.css">
+    <link rel="stylesheet" href="../css/index.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="../index.js"></script>
+</head>
+<body>
+    <div class="sidenav">
+        <h1 style="color: aqua;">Cameras</h1>
+    </div>
+    <div id="body">
+        <div id="title">AMDAT Website</div>
+
+        <div id="imgs">
+            <button id="backward" class="control-btns"><img class="img-btn" src="../imgs/LEFT.png" alt="Back"></button>
+            <div>
+                <img id="slideshow" src="./images/img0.jpg" alt="no pic">
+                <div id="caption"></div>
+            </div>
+            <button id="forward" class="control-btns"> <img class="img-btn" src="../imgs/RIGHT.png" alt="Forward"> </button>
+        </div>
+        
+        <div id="img-links">
+            <h2 ><a id="raw-link" href="">View Raw File</a></h2>
+            <h2 ><a id="status-link" href="">View Status Logs</a></h2>
+        </div>
+
+        <div id="img-metadata">
+            <h2 class="static top">Camera</h2>
+            <h2 class="static mid">Date</h2>
+            <h2 class="static btm">Location</h2>
+
+            <h2 id="cam" class="dynamic top">DCamera</h2>
+            <h2 id="date" class="dynamic mid">DDDDate</h2>
+            <h2 id="loc" class="dynamic btm">DLocation</h2>
+
+        </div>
+
+    </div>
+
+    <!-- <footer id="foot">
+        &copy2020 by Eric Khumbata <br>
+        Last Modified: <script>document.write(document.lastModified)</script>
+    </footer> -->
+
+</body>
+</html>

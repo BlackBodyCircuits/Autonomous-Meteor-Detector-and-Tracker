@@ -86,8 +86,18 @@ async function FNext(){
             console.log(res); // Or do something with the JSON data
             var im_name = res["name"]
             var im_src = server + res["url"]
+            var cam = res["camera"]
+            var loc = res["loc"]
+            var date = new Date(res["date"])
+            date = new Date("2024-03-29T12:45:00Z")
+            console.log(date)
+            const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+            // localDate.toString()
 
             document.getElementById('caption').innerHTML  = im_name;
+            document.getElementById('cam').innerHTML  = cam;
+            document.getElementById('date').innerHTML  = localDate;
+            document.getElementById('loc').innerHTML  = loc;
             document.getElementById('slideshow').src = im_src;
         } else {
             console.error('Failed to fetch JSON:', xhr.status);

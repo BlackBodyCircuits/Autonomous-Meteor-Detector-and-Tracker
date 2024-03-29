@@ -34,8 +34,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         print(len(imgs))
         query_components['id'] = int(query_components['id']) % len(imgs)
         print("##############", query_components)
+        name = imgs[query_components['id']].removesuffix(".jpg")
+        with open(f"./server_metadata/{name}.txt") as f:
+            metadata = json.load(f)
+            cam = metadata["camera"]
+            date = metadata["date"]
+            loc = metadata["location"]
 
-        res = {"name": "pearl", "description": "pearl image", "url": f"/pearl{query_components['id']}.jpg"}
+
+
+        res = {"name": f"{name}", "camera": cam, "date": date, "loc": loc, "url": f"/pearl{query_components['id']}.jpg"}
         res = json.dumps(res)
         self.wfile.write(f"{res}".encode())
 
