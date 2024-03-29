@@ -85,7 +85,8 @@ async function FNext(){
             var res = xhr.response;
             console.log(res); // Or do something with the JSON data
             var im_name = res["name"]
-            var im_src = server + res["url"]
+            var im_src = server + res["img_url"]
+            var log_file = server + res["log_url"]
             var cam = res["camera"]
             var loc = res["loc"]
             var date = new Date(res["date"])
@@ -99,6 +100,7 @@ async function FNext(){
             document.getElementById('date').innerHTML  = localDate;
             document.getElementById('loc').innerHTML  = loc;
             document.getElementById('slideshow').src = im_src;
+            document.getElementById('status-link').href = log_file;
         } else {
             console.error('Failed to fetch JSON:', xhr.status);
         }

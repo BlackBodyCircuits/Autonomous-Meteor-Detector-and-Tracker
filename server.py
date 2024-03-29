@@ -17,6 +17,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self._set_response()
         elif re.search(".\.jpg", req):
             self._send_img()
+        elif re.search(".\.txt", req):
+            self._send_log()
         else:
             self._not_found()
 
@@ -35,6 +37,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         query_components['id'] = int(query_components['id']) % len(imgs)
         print("##############", query_components)
         name = imgs[query_components['id']].removesuffix(".jpg")
+
         with open(f"./server_metadata/{name}.txt") as f:
             metadata = json.load(f)
             cam = metadata["camera"]
@@ -43,7 +46,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
 
 
-        res = {"name": f"{name}", "camera": cam, "date": date, "loc": loc, "url": f"/pearl{query_components['id']}.jpg"}
+        res = {
+                "name": f"{name}", 
+               "camera": cam, 
+               "date": date, 
+               "loc": loc, 
+               "img_url": f"/{name}.jpg", 
+               "log_url": f"/{cam}.txt"
+               }
         res = json.dumps(res)
         self.wfile.write(f"{res}".encode())
 
@@ -51,6 +61,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self._set_header(content_type="text/html")
         with open("./server_imgs" + self.path, 'rb') as content:
+            self.wfile.write(content.read()) 
+
+    def _send_log(self):
+        self.send_response(200)
+        self._set_header(content_type="text/html")
+        with open("./server_logs" + self.path, 'rb') as content:
             self.wfile.write(content.read()) 
             
     def _not_found(self):
