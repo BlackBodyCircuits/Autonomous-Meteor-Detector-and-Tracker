@@ -47,7 +47,8 @@ def detect_obstruction(img, verbose=False):
     '''
         Given an image taken by a camera, detect if there is something obstructing the view
     '''
-    img = cv2.resize(img, (1080, 1080))
+    img_w, img_h = 640, 640
+    img = cv2.resize(img, (img_h, img_w))
     img = cv2.GaussianBlur(img, [9, 9], 1)
 
     
@@ -69,8 +70,8 @@ def detect_obstruction(img, verbose=False):
     # get the area taken up by the contours
     tot_area = sum(cv2.contourArea(contour) for contour in contours)
     max_area = cv2.contourArea(c)
-    max_p = max_area / 1080**2
-    tot_p = tot_area / 1080**2
+    max_p = max_area / (img_w * img_h)
+    tot_p = tot_area / (img_w * img_h)
     
     
     if verbose:
