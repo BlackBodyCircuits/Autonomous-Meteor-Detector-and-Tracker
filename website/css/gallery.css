@@ -14,6 +14,10 @@ body{
     background-color: lightgrey;
 }
 
+#gallery-btn{
+    width: 10%;
+}
+
 
 /* #scroll-container {
     background-color: #333;

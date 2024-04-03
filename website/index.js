@@ -70,12 +70,13 @@ function handle_res(res, server_addr){
     // get the time in local time
     var date = new Date(res["date"])
     const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-
+    
     document.getElementById('caption').innerHTML  = im_name;
     document.getElementById('cam').innerHTML  = cam;
     document.getElementById('date').innerHTML  = localDate;
     document.getElementById('loc').innerHTML  = loc;
     document.getElementById('slideshow').src = im_src;
+    document.getElementById('raw-link').href = im_src+"&raw=True";
     // document.getElementById('status-link').href = log_file;
     console.log(log_file)
     document.getElementById('status-link').src = log_file;
@@ -104,6 +105,10 @@ function FPrev(){
     get_img(imgID -= 1)
 }
 
+function gallery(){
+    // window.open("http://127.0.0.1:5500/website/html/gallery.html");
+}
+
 //window.onload=function(){
 $(document).ready(function() {
     fInit();
@@ -111,4 +116,5 @@ $(document).ready(function() {
     $('#forward').click(FNext)
     //document.getElementById('backward').onclick = FPrev;
     $('#backward').click(FPrev);
+    // $('#gallery-btn').click(gallery);
 });

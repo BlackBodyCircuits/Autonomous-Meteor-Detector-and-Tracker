@@ -20,6 +20,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self._send_img()
         elif re.search(".\.txt", req):
             self._send_log()
+        elif req == "/load_imgs":
+            self._load_imgs()
         else:
             self._not_found()
 
@@ -31,12 +33,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self._set_header()
 
         query = self.path
-        q = [qc.split("=") for qc in query.split("&")]
         query_components = dict(qc.split("=") for qc in query.split("&")[1:])
         _, _, imgs = next(os.walk("./server_imgs"))
         print(len(imgs))
         query_components['id'] = int(query_components['id']) % len(imgs)
-        print("##############", query_components)
         name = imgs[query_components['id']].removesuffix(".jpg")
 
         with open(f"./server_metadata/{name}.txt") as f:
@@ -44,12 +44,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             cam = metadata["camera"]
             date = metadata["date"]
             loc = metadata["location"]
-        
-        with open(f"./server_logs/{cam}.txt") as f:
-            log_data = json.load(f)
-        print("#################", log_data)
-
-
 
         res = {
                 "name": f"{name}", 
@@ -58,15 +52,26 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                "loc": loc, 
                "img_url": f"/{name}.jpg", 
                "log_url": f"/{cam}.txt"
-            #    "log_url": log_data
                }
         res = json.dumps(res)
         self.wfile.write(f"{res}".encode())
 
     def _send_img(self):
         self.send_response(200)
+
+        query = self.path
+        query_components = dict(qc.split("=") for qc in query.split("&")[1:])
+        
+
+        dir = "./server_detections"
+        try:
+            if query_components["raw"]:
+                dir = "./server_imgs"
+        except KeyError:
+            pass
+        
         self._set_header(content_type="text/html")
-        with open("./server_imgs" + self.path, 'rb') as content:
+        with open(dir + self.path.split("&")[0], 'rb') as content:
             self.wfile.write(content.read()) 
 
     def _send_log(self):
@@ -81,7 +86,39 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
             print(pretty_json_str)
             self.wfile.write(pretty_json_str.encode('utf-8'))
-            
+
+    def _load_imgs(self):
+        self.send_response(200)
+        self._set_header()
+
+        query = self.path
+        q = [qc.split("=") for qc in query.split("&")]
+        query_components = dict(qc.split("=") for qc in query.split("&")[1:])
+        _, _, imgs = next(os.walk("./server_imgs"))
+        print(len(imgs))
+        print(query_components)
+
+        prev_loaded = int(query_components["loaded_imgs"])
+        num_to_load = int(query_components["load"])
+        num_imgs = len(imgs)
+
+        res_imgs = []
+
+        if prev_loaded < num_imgs:
+            max_load = prev_loaded + num_to_load
+            if max_load >= num_imgs:
+                max_load = num_imgs
+            for i in range(prev_loaded, max_load):
+                img_name = f"/{imgs[i]}"
+                res_imgs.append(img_name)
+
+        print(res_imgs)
+
+        res = {"imgs": res_imgs}
+        print(res)
+        res = json.dumps(res)
+        self.wfile.write(f"{res}".encode())
+      
     def _not_found(self):
         self.send_response(401)
         self._set_header(content_type="text/html")

@@ -19,8 +19,8 @@ footer{
     font-size: xx-large;
     font-family: 'Righteous', cursive;
     background-color: whitesmoke;
-    padding-top: 20px;
-    padding-bottom: 20px;
+    padding-top: 1%;
+    padding-bottom: 1%;
 }
 
 #bottomrow{
@@ -58,7 +58,7 @@ footer{
     margin-left: auto;
     margin-right: auto;
     width: 100%;
-    height: 80%;
+    height: 30em;
 }
 
 #imgs{
@@ -125,6 +125,10 @@ footer{
 .img-btn{
     width: 100%;
     height: 100%;
+}
+
+#gallery-btn{
+    width: 10%;
 }
 
 
