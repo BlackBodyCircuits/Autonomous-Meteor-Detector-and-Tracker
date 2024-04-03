@@ -1,5 +1,22 @@
 //create global variables  
-var imgID = 0;
+var imgID;
+
+// https://www.w3schools.com/js/js_cookies.asp
+function getCookie(cname) {
+    let name = cname + "=";
+    let decodedCookie = decodeURIComponent(document.cookie);
+    let ca = decodedCookie.split(';');
+    for(let i = 0; i <ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
 
 function get_img(ID){
 
@@ -24,12 +41,8 @@ function get_img(ID){
             // Access the parsed JSON response
             var res = xhr.response;
             handle_res(res, server_addr)
-            // console.log(res); // Or do something with the JSON data
-            // var im_name = res["name"]
-            // var im_src = server + res["url"]
-
-            // document.getElementById('caption').innerHTML  = im_name;
-            // document.getElementById('slideshow').src = im_src;
+            // remeber the image we were last looking at
+            document.cookie = `imgID=${ID}`;
         } else {
             console.error('Failed to fetch JSON:', xhr.status);
         }
@@ -67,6 +80,13 @@ function handle_res(res, server_addr){
 
 //function will be called on the window load event
 function fInit(){
+    // load the last looked at image ID
+    imgID = getCookie("imgID")
+    if (!imgID){
+        imgID = 0
+        console.log(imgID)
+    }
+    console.log(imgID)
     // load the firt image in the DB on init
     get_img(imgID)
 }
