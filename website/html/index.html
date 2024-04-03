@@ -9,6 +9,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="../index.js"></script>
 </head>
+
 <body>
     <div class="sidenav">
         <h1 style="color: #b8c9f5;">Cameras</h1>
@@ -18,7 +19,7 @@
 
         <div id="imgs">
             <button id="backward" class="control-btns"><img class="img-btn" src="../imgs/LEFT.png" alt="Back"></button>
-            <div>
+            <div id="img-box">
                 <img id="slideshow" src="./images/img0.jpg" alt="no pic">
                 <div id="caption"></div>
             </div>
@@ -27,7 +28,7 @@
         
         <div id="img-links">
             <h2 ><a id="raw-link" href="">View Raw File</a></h2>
-            <h2 ><a id="status-link" href="">View Status Logs</a></h2>
+            <h2 ><iframe id="status-link" src=""></iframe></h2>
         </div>
 
         <div id="img-metadata">
@@ -42,11 +43,6 @@
         </div>
 
     </div>
-
-    <!-- <footer id="foot">
-        &copy2020 by Eric Khumbata <br>
-        Last Modified: <script>document.write(document.lastModified)</script>
-    </footer> -->
 
 </body>
 </html>

@@ -1,5 +1,6 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import json
+import pprint
 import re
 import os
 
@@ -43,6 +44,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             cam = metadata["camera"]
             date = metadata["date"]
             loc = metadata["location"]
+        
+        with open(f"./server_logs/{cam}.txt") as f:
+            log_data = json.load(f)
+        print("#################", log_data)
 
 
 
@@ -53,6 +58,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                "loc": loc, 
                "img_url": f"/{name}.jpg", 
                "log_url": f"/{cam}.txt"
+            #    "log_url": log_data
                }
         res = json.dumps(res)
         self.wfile.write(f"{res}".encode())
@@ -67,7 +73,14 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_response(200)
         self._set_header(content_type="text/html")
         with open("./server_logs" + self.path, 'rb') as content:
-            self.wfile.write(content.read()) 
+            log_data = json.load(content)
+            pretty_json_str = pprint.pformat(log_data)
+            rem = {"{": "\n", "}": "", "'": ""}
+            for char in rem.keys():
+                pretty_json_str = pretty_json_str.replace(char, rem[char])
+
+            print(pretty_json_str)
+            self.wfile.write(pretty_json_str.encode('utf-8'))
             
     def _not_found(self):
         self.send_response(401)

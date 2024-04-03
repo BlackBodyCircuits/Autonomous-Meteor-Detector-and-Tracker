@@ -64,6 +64,11 @@ footer{
 #imgs{
     padding-top: 50px;
     display: flex;
+    width: 100%
+}
+
+#img-box{
+    width: 100%
 }
 
 .btn{
