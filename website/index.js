@@ -63,6 +63,7 @@ function handle_res(res, server_addr){
     var im_name = res["name"]
     var im_src = server_addr + res["img_url"]
     var log_file = server_addr + res["log_url"]
+    // var log_file = JSON.stringify(res["log_url"])
     var cam = res["camera"]
     var loc = res["loc"]
 
@@ -75,7 +76,9 @@ function handle_res(res, server_addr){
     document.getElementById('date').innerHTML  = localDate;
     document.getElementById('loc').innerHTML  = loc;
     document.getElementById('slideshow').src = im_src;
-    document.getElementById('status-link').href = log_file;
+    // document.getElementById('status-link').href = log_file;
+    console.log(log_file)
+    document.getElementById('status-link').src = log_file;
 }
 
 //function will be called on the window load event
