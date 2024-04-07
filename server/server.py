@@ -3,6 +3,8 @@ import json
 import pprint
 import re
 import os
+from detection_script import check_for_new_imgs, init_detection
+import time
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     """HTTP request handler with additional properties and functions."""
@@ -37,7 +39,10 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         _, _, imgs = next(os.walk("./server_imgs"))
         print(len(imgs))
         query_components['id'] = int(query_components['id']) % len(imgs)
-        name = imgs[query_components['id']].removesuffix(".jpg")
+        try:
+            name = imgs[query_components['id']].removesuffix(".jpg")
+        except AttributeError:
+            name = imgs[query_components['id']][:-4]
 
         with open(f"./server_metadata/{name}.txt") as f:
             metadata = json.load(f)
@@ -139,8 +144,20 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self._set_response()
         self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
 
+class custom_HTTPServer(HTTPServer):
+    def __init__(self, server_address, handler_class) -> None:
+        super().__init__(server_address, handler_class)
+        self.last_check = time.time()
+        self.seen_imgs = init_detection()
 
-def run(server_class=HTTPServer, handler_class=HTTPRequestHandler):
+    def service_actions(self):
+        if (time.time() - self.last_check) > 30:
+            check_for_new_imgs(self.seen_imgs)
+            self.last_check = time.time()
+            print("RUNNING INFRENCE")
+
+
+def run(server_class=custom_HTTPServer, handler_class=HTTPRequestHandler):
     port = 8080
     server_address = ('127.0.0.1', port)
     httpd = server_class(server_address, handler_class)

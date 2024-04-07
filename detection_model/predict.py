@@ -4,8 +4,8 @@ import random
 import cv2
 
 def run_prediction(imgs: list):
-
-    model = YOLO("model\\best.pt")
+    model_file = os.path.join("model", "best.pt")
+    model = YOLO(model_file)
 
     # preds = model.predict(imgs, show=True, save=True, imgsz=640, conf=1, max_det=1)
 
@@ -18,7 +18,7 @@ def run_prediction(imgs: list):
         boxes = result.boxes  # Boxes object for bounding box outputs
         probs = result.probs  # Probs object for classification outputs
         result.show()  # display to screen
-        result.save(filename=f'results/{i}.jpg')
+        result.save(filename=os.path.join("results", f"{i}.jpg"))
         print(boxes, len(boxes.conf))
 
 
@@ -27,7 +27,8 @@ def run_prediction(imgs: list):
 if __name__ == "__main__":
     n = 15
     images = []
-    for root, dirs, files in os.walk("..\camera_obstruction_detection\\test_imgs"):
+    img_dir = os.path.join("..", "camera_obstruction_detection", "test_imgs")
+    for root, dirs, files in os.walk(img_dir):
         if len(files) > n:
             files = random.sample(files, n)
 

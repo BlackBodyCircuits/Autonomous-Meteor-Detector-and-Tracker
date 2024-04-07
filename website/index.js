@@ -82,6 +82,34 @@ function handle_res(res, server_addr){
     document.getElementById('status-link').src = log_file;
 }
 
+function init_push(){
+    navigator.serviceWorker.register('/sw.js')
+        .then(function(registration) {
+        console.log('Service worker successfully registered.');
+        })
+        .catch(function(error) {
+        console.log('Service worker registration failed:', error);
+        });
+
+    Notification.requestPermission().then(function(permission) {
+        if (permission === 'granted') {
+          console.log('Notification permission granted.');
+          navigator.serviceWorker.ready.then(function(registration) {
+            registration.pushManager.subscribe({userVisibleOnly: true})
+            .then(function(subscription) {
+              console.log('Subscribed for push:', subscription.endpoint);
+            })
+            .catch(function(error) {
+              console.log('Subscription failed:', error);
+            });
+          });
+        } else {
+          console.log('Unable to get permission to notify.');
+        }
+      });
+
+}
+
 //function will be called on the window load event
 function fInit(){
     // load the last looked at image ID
@@ -93,6 +121,8 @@ function fInit(){
     console.log(imgID)
     // load the firt image in the DB on init
     get_img(imgID)
+    init_push()
+    
 }
 
 async function FNext(){
