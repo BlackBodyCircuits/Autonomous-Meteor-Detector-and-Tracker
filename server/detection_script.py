@@ -46,17 +46,17 @@ def init_detection():
     '''
         Runs once to set up the list of existing images 
     '''
-
+    seen = set()
     for (dirpath, dirnames, filenames) in os.walk("server_imgs"):
         seen = set(filenames)
         break
-    seen.remove("pearl3.jpg")
+    # seen.remove("pearl3.jpg")
     # seen.remove("pearl2.jpg")
     # print(seen)
     return seen
 
 if __name__ == "__main__":
-    seen_imgs = init()
+    seen_imgs = init_detection()
     while True:
         time.sleep(1)
         check_for_new_imgs(seen_imgs)

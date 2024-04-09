@@ -36,7 +36,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
 
         query = self.path
         query_components = dict(qc.split("=") for qc in query.split("&")[1:])
-        _, _, imgs = next(os.walk("./server_imgs"))
+        _, _, imgs = next(os.walk("./server_detections"))
         print(len(imgs))
         query_components['id'] = int(query_components['id']) % len(imgs)
         try:
@@ -44,9 +44,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         except AttributeError:
             name = imgs[query_components['id']][:-4]
 
-        with open(f"./server_metadata/{name}.txt") as f:
+        with open(f"./server_metadata/{name}_meta.json") as f:
             metadata = json.load(f)
-            cam = metadata["camera"]
+            cam = metadata["Camera"]
             date = metadata["date"]
             loc = metadata["location"]
 
@@ -100,6 +100,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         q = [qc.split("=") for qc in query.split("&")]
         query_components = dict(qc.split("=") for qc in query.split("&")[1:])
         _, _, imgs = next(os.walk("./server_imgs"))
+        imgs = sorted(imgs)
         print(len(imgs))
         print(query_components)
 
