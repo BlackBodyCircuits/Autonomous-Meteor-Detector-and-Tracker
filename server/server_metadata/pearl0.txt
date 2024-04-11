@@ -1,1 +1,0 @@
-{"camera": 1, "location": "Edmonton", "date": "2024-01-29T12:45:00Z"}

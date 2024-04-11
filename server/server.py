@@ -5,6 +5,9 @@ import re
 import os
 from detection_script import check_for_new_imgs, init_detection
 import time
+from datetime import datetime, timezone
+import base64
+
 
 class HTTPRequestHandler(BaseHTTPRequestHandler):
     """HTTP request handler with additional properties and functions."""
@@ -24,6 +27,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             self._send_log()
         elif req == "/load_imgs":
             self._load_imgs()
+        elif req == "/get_status":
+            self._get_status()
         else:
             self._not_found()
 
@@ -38,7 +43,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         query_components = dict(qc.split("=") for qc in query.split("&")[1:])
         _, _, imgs = next(os.walk("./server_detections"))
         print(len(imgs))
-        query_components['id'] = int(query_components['id']) % len(imgs)
+        query_components['id'] = abs(int(query_components['id'])) % len(imgs)
         try:
             name = imgs[query_components['id']].removesuffix(".jpg")
         except AttributeError:
@@ -125,6 +130,42 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         res = json.dumps(res)
         self.wfile.write(f"{res}".encode())
       
+    def _get_status(self):
+        self.send_response(200)
+        self._set_header()
+        print("#################HERE")
+
+        now = datetime.now(timezone.utc).replace(tzinfo=None)
+        query = self.path
+        #      "cams": {"ID": {"errs": [err_code], "time": [UTC_string], "connection": str}}
+        res = {"cams": {}}
+
+        for (root,dirs,files) in os.walk('./server_logs', topdown=True):
+            
+            for file in files:
+                with open(os.path.join(root, file), 'r') as content:
+                    log_data = json.load(content)
+                    ID = int(file.split(".")[0])
+                    data = {"errs": [], "time": [], "connection": "CONNECTED"}
+
+                    last_date = list(log_data.keys())[-1]
+                    last_date_time = datetime.strptime(last_date,'%Y-%m-%dT%H:%M:%SZ')
+                    if (now  - last_date_time).total_seconds() > 20 * 60:
+                        data["connection"] = "DISCONNECTED"
+
+                    for date in log_data.keys():
+                        log = log_data[date]
+                        print(log, ID)
+                        if log["status"] != "GOOD":
+                            data["errs"].append(log["status"])
+                            data["time"].append(date)
+
+                    res["cams"][ID] = data
+        print(res)
+        res = json.dumps(res)
+        self.wfile.write(f"{res}".encode())
+
+
     def _not_found(self):
         self.send_response(401)
         self._set_header(content_type="text/html")
@@ -137,13 +178,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Origin, Content-Type')
         self.end_headers()
 
-    def do_POST(self):
-        content_length = int(self.headers['Content-Length']) # <--- Gets the size of data
-        post_data = self.rfile.read(content_length) # <--- Gets the data itself
-        print("POST request,\nPath: %s\nHeaders:\n%s\n\nBody:\n%s\n", str(self.path), str(self.headers), post_data.decode('utf-8'))
 
-        self._set_response()
-        self.wfile.write("POST request for {}".format(self.path).encode('utf-8'))
 
 class custom_HTTPServer(HTTPServer):
     def __init__(self, server_address, handler_class) -> None:
