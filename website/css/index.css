@@ -147,6 +147,24 @@ footer{
 }
 
 
+#status-link i{
+    margin-left: 7%;
+    width: fit-content;
+    font-style: normal;
+}
+
+#status-link{
+    padding: 1%;
+    padding-right: 7%;
+    white-space: nowrap;
+    width: fit-content;
+    height: fit-content;
+    border: 1px solid black;
+}
+
+
+
+
 @media only screen and (min-width: 600px){
     body{
         background-color: #b8c9f5;
