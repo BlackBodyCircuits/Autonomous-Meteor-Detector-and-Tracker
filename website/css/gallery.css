@@ -18,6 +18,21 @@ body{
     width: 10%;
 }
 
+.camera-div{
+    width: 70%;
+    border: 2px solid white;
+    border-radius: 20%;
+    color: white;
+    position: relative;
+    left: 20%;
+    padding-bottom: 5%;
+    margin-bottom: 10%;
+}
+
+.reset-status-btn{
+    background-color: #b8c9f5;
+}
+
 
 /* #scroll-container {
     background-color: #333;

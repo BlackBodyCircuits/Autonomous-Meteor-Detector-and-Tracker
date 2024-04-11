@@ -17,8 +17,7 @@ function getCookie(cname) {
     return "";
   }
 
-
-  function check_errs(cam, ID){
+function check_errs(cam, ID){
     console.log(cam["errs"].length)
     if(!(ID in cams)){
         cams[ID] = {"status": "GOOD", "last_reset": new Date().getTime()}
@@ -201,7 +200,7 @@ function reset_status(){
 }
 
 //function will be called on the window load event
-function fInit(){
+function init_sidebar(){
     cam_cookie = getCookie("cams")
     console.log(cam_cookie)
     if(cam_cookie){
@@ -218,5 +217,5 @@ function fInit(){
 
 //window.onload=function(){
     $(document).ready(function() {
-        fInit();
+        init_sidebar();
     });
