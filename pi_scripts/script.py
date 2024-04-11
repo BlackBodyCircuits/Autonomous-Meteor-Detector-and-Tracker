@@ -13,11 +13,11 @@ import cv2
 
 ip_server = "10.0.0.71"
 
-DEMO = True # no internet
-TEST = True # fake sunrise sunset times, short waiting time
+DEMO = True # no internet, also need to manually set up sunrise and sunset times
 
 path_local = "/home/raspberrypi/Desktop/DO_NOT_DELETE/"
 path_server_images = "/home/ece492/Desktop/code/Autonomous-Meteor-Detector-and-Tracker/server/server_imgs"
+path_server_short_expo = "/home/ece492/Desktop/code/Autonomous-Meteor-Detector-and-Tracker-main/server/short_exposure_images"
 path_server_meta = "/home/ece492/Desktop/code/Autonomous-Meteor-Detector-and-Tracker/server/server_metadata"
 path_server_status = "/home/ece492/Desktop/code/Autonomous-Meteor-Detector-and-Tracker/server/server_logs"
 
@@ -34,10 +34,10 @@ def get_times():
         sundown is manually set to 02:00 in UTC\n")
         sunrise_time = datetime.time(hour=12)
         sunset_time = datetime.time(hour=2)
-    if TEST:
+    if DEMO:
         # sunrise time has to be larger than sunset time, given how the library works
-        sunrise_time = datetime.time(hour=3, minute=33)
-        sunset_time = datetime.time(hour=3, minute=27)
+        sunrise_time = datetime.time(hour=22, minute=15)
+        sunset_time = datetime.time(hour=22, minute=11)
     return sunrise_time, sunset_time
 
 
@@ -57,12 +57,21 @@ def camera_long_expo():
     global picam2
     picam2.stop()
     picam2.configure(picam2.create_still_configuration(buffer_count=2))
-    picam2.set_controls({"ExposureTime": 30000000,
-                        "AnalogueGain": 0,
-                        "AfMode": controls.AfModeEnum.Manual,
-                        "LensPosition": 0.0,
-                        "ExposureValue": -7,
-                        "AeExposureMode": controls.AeExposureModeEnum.Long})
+    if DEMO:
+        picam2.set_controls({"ExposureTime": 10000000,
+                            "AnalogueGain": 0,
+                            "AfMode": controls.AfModeEnum.Manual,
+                            "LensPosition": 0.0,
+                            "ExposureValue": -7,
+                            "AeExposureMode": controls.AeExposureModeEnum.Long})
+        
+    else:            
+        picam2.set_controls({"ExposureTime": 30000000,
+                            "AnalogueGain": 0,
+                            "AfMode": controls.AfModeEnum.Manual,
+                            "LensPosition": 0.0,
+                            "ExposureValue": -7,
+                            "AeExposureMode": controls.AeExposureModeEnum.Long})
     picam2.start()
                     
 def camera_short_expo():
@@ -78,17 +87,17 @@ def camera_short_expo():
     picam2.start()
     
 def get_info_from_ip():
-    if(DEMO == False):
+    if DEMO:
+        city = "Edmonton"
+        lat = 53.459
+        lon = -113.5227
+    else:
         ip_raspberrypi = requests.get('https://api64.ipify.org?format=json').json()["ip"]
         response = requests.get(f'https://ipapi.co/{ip_raspberrypi}/json/').json()
         global city, lat, lon 
         city = response.get("city")
         lat = response.get("latitude")
         lon = response.get("longitude")
-    else:
-        city = "Edmonton"
-        lat = 53.459
-        lon = -113.5227
 
 def refresh_time():
     now = datetime.datetime.now(datetime.timezone.utc)
@@ -98,7 +107,7 @@ def refresh_time():
 
 def send_image():
     os.system(f"scp {path_local}{now_datetime}.jpg ece492@{ip_server}:{path_server_images}")
-    dict_metadata = {"Camera": 1, "location": city, "date": now_datetime}
+    dict_metadata = {"Camera": 2, "location": city, "date": now_datetime}
     with open(f"{path_local}{now_datetime}_meta.json", "w") as metadata:
         json.dump(dict_metadata, metadata)
     os.system(f"scp {path_local}{now_datetime}_meta.json ece492@{ip_server}:{path_server_meta}")
@@ -117,9 +126,9 @@ def run_detection(now_datetime):
     for dic in status_deque:
         for key,value in dic.items():
             status_dict[key] = value
-    with open(f"{path_local}1.txt", "w") as status:
+    with open(f"{path_local}2.txt", "w") as status:
         json.dump(status_dict, status)
-    os.system(f"scp {path_local}1.txt ece492@{ip_server}:{path_server_status}")
+    os.system(f"scp {path_local}2.txt ece492@{ip_server}:{path_server_status}")
 
 def fill_deque(length):
     status_deque = collections.deque(maxlen=length)
@@ -141,7 +150,11 @@ if __name__ == "__main__":
     status_deque = fill_deque(30)
     long_expo = False
     print(f'City: {city}\nlat: {lat}\tlon: {lon}\nsunrise(UTC): {sunrise_time}\nsunset(UTC): {sunset_time}\nnow_datetime(UTC): {now_datetime}\n')
-    detection_time = 2 # 1 means 30 secs
+    detection_time = 0
+    if DEMO:
+        detection_time = 3 # 30 sec if exposure time is 10 sec
+    else:
+        detection_time = 10 # 5 min if exposure time is 30 sec
     detection_i = detection_time - 1 # the first image will be detected
     while(1):
         sunrise_time, sunset_time = get_times()
@@ -161,9 +174,7 @@ if __name__ == "__main__":
                 long_expo = False
                 refresh_time()
             picam2.capture_file(f"{path_local}{now_datetime}.jpg")
-            #if TEST:
-            #    os.system(f"scp {path_local}{now_datetime}.jpg ece492@{ip_server}:{path_server_images}")
-        # if night run detection every 5 mins and send back status
+        # if night run detection every a few images
         if(now_time >= sunset_time and now_time <= sunrise_time):
             detection_i = detection_i + 1
             if(detection_i == detection_time):
@@ -172,7 +183,8 @@ if __name__ == "__main__":
         else:
             # if daytime, run detection on every short-exposure image (5mins between images)
             run_detection(now_datetime)
-            if TEST:
+            if DEMO:
+                os.system(f"scp {path_local}{now_datetime}.jpg ece492@{ip_server}:{path_server_short_expo}")
                 time.sleep(1*60) # 1 min
             else:
                 time.sleep(5*60) # 5 mins
