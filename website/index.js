@@ -1,6 +1,6 @@
 //create global variables  
 var imgID;
-var cams = {};
+var raw;
 
 // https://www.w3schools.com/js/js_cookies.asp
 function getCookie(cname) {
@@ -77,8 +77,8 @@ function handle_res(res, server_addr){
     document.getElementById('date').innerHTML  = localDate;
     document.getElementById('loc').innerHTML  = loc;
     document.getElementById('slideshow').src = im_src;
-    document.getElementById('raw-link').href = im_src+"&raw=True";
-    // document.getElementById('status-link').href = log_file;
+    raw = im_src+"&raw=True"
+    // document.getElementById('raw-link').href = im_src+"&raw=True";
     console.log(log_file)
     document.getElementById('status-link').src = log_file;
 }
@@ -108,8 +108,9 @@ function FPrev(){
     get_img(imgID -= 1)
 }
 
-function gallery(){
-    // window.open("http://127.0.0.1:5500/website/html/gallery.html");
+function view_raw(){
+    document.getElementById('slideshow').src = raw;
+    document.getElementById('caption').innerHTML += " - raw";
 }
 
 //window.onload=function(){
@@ -119,5 +120,6 @@ $(document).ready(function() {
     $('#forward').click(FNext)
     //document.getElementById('backward').onclick = FPrev;
     $('#backward').click(FPrev);
+    $(`#raw-link`).click(view_raw)
     // $('#gallery-btn').click(gallery);
 });

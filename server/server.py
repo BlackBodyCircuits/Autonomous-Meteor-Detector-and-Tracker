@@ -76,9 +76,12 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         dir = "./server_detections"
         try:
             if query_components["raw"]:
+                print("HERE####################")
                 dir = "./server_imgs"
         except KeyError:
             pass
+
+        print(dir)
         
         self._set_header(content_type="text/html")
         with open(dir + self.path.split("&")[0], 'rb') as content:
