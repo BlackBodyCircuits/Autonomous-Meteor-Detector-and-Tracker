@@ -10,16 +10,19 @@ import collections
 import time
 import detect
 import cv2
+import board
+import busio
+import adafruit_vl53l0x
 
 ip_server = "10.0.0.71"
 
 DEMO = True # no internet, also need to manually set up sunrise and sunset times
 
 path_local = "/home/raspberrypi/Desktop/DO_NOT_DELETE/"
-path_server_images = "/home/ece492/Desktop/code/Autonomous-Meteor-Detector-and-Tracker/server/server_imgs"
-path_server_short_expo = "/home/ece492/Desktop/code/Autonomous-Meteor-Detector-and-Tracker-main/server/short_exposure_images"
-path_server_meta = "/home/ece492/Desktop/code/Autonomous-Meteor-Detector-and-Tracker/server/server_metadata"
-path_server_status = "/home/ece492/Desktop/code/Autonomous-Meteor-Detector-and-Tracker/server/server_logs"
+path_server_images = "/home/ece492/Desktop/Autonomous-Meteor-Detector-and-Tracker/server/server_imgs"
+path_server_short_expo = "/home/ece492/Desktop/Autonomous-Meteor-Detector-and-Tracker/server/short_exposure_images"
+path_server_meta = "/home/ece492/Desktop/Autonomous-Meteor-Detector-and-Tracker/server/server_metadata"
+path_server_status = "/home/ece492/Desktop/Autonomous-Meteor-Detector-and-Tracker/server/server_logs"
 
 
 
@@ -36,8 +39,8 @@ def get_times():
         sunset_time = datetime.time(hour=2)
     if DEMO:
         # sunrise time has to be larger than sunset time, given how the library works
-        sunrise_time = datetime.time(hour=22, minute=15)
-        sunset_time = datetime.time(hour=22, minute=11)
+        sunrise_time = datetime.time(hour=23, minute=59)
+        sunset_time = datetime.time(hour=0, minute=0)
     return sunrise_time, sunset_time
 
 
@@ -58,14 +61,13 @@ def camera_long_expo():
     picam2.stop()
     picam2.configure(picam2.create_still_configuration(buffer_count=2))
     if DEMO:
-        picam2.set_controls({"ExposureTime": 10000000,
+        picam2.set_controls({"ExposureTime": 10000,
                             "AnalogueGain": 0,
                             "AfMode": controls.AfModeEnum.Manual,
                             "LensPosition": 0.0,
-                            "ExposureValue": -7,
-                            "AeExposureMode": controls.AeExposureModeEnum.Long})
-        
-    else:            
+                            "ExposureValue": 0,
+                            "AeExposureMode": controls.AeExposureModeEnum.Normal})
+    else:
         picam2.set_controls({"ExposureTime": 30000000,
                             "AnalogueGain": 0,
                             "AfMode": controls.AfModeEnum.Manual,
@@ -87,6 +89,7 @@ def camera_short_expo():
     picam2.start()
     
 def get_info_from_ip():
+    global city, lat, lon 
     if DEMO:
         city = "Edmonton"
         lat = 53.459
@@ -94,7 +97,6 @@ def get_info_from_ip():
     else:
         ip_raspberrypi = requests.get('https://api64.ipify.org?format=json').json()["ip"]
         response = requests.get(f'https://ipapi.co/{ip_raspberrypi}/json/').json()
-        global city, lat, lon 
         city = response.get("city")
         lat = response.get("latitude")
         lon = response.get("longitude")
@@ -114,12 +116,16 @@ def send_image():
     os.system(f"rm {path_local}{now_datetime}_meta.json")
 
 def run_detection(now_datetime):
-    image = cv2.imread(f"{path_local}{now_datetime}.jpg")
-    detection_result = detect.detect_obstruction(image, False)
-    if detection_result is True:
-        status = "BAD"
-    else:
-        status = "GOOD"
+    #image = cv2.imread(f"{path_local}{now_datetime}.jpg")
+    #detection_result = detect.detect_obstruction(image, False)
+    #if detection_result is True:
+    #    status = "BAD"
+    #else:
+    #    status = "GOOD"
+    dist = vl53.range
+    status = "GOOD"
+    if dist > 60:
+        status = "OBSTRUCTION_DETECTED"
     temp = float(os.popen("vcgencmd measure_temp").read()[5:9])
     status_deque.append({now_datetime: {"status": status, "temp": temp}})
     status_dict = {}
@@ -140,6 +146,8 @@ def fill_deque(length):
 
 
 if __name__ == "__main__":
+    i2c = busio.I2C(board.SCL, board.SDA)
+    vl53 = adafruit_vl53l0x.VL53L0X(i2c)
     setup_camera()
     get_info_from_ip()
     sunrise_time, sunset_time = get_times()
@@ -152,7 +160,7 @@ if __name__ == "__main__":
     print(f'City: {city}\nlat: {lat}\tlon: {lon}\nsunrise(UTC): {sunrise_time}\nsunset(UTC): {sunset_time}\nnow_datetime(UTC): {now_datetime}\n')
     detection_time = 0
     if DEMO:
-        detection_time = 3 # 30 sec if exposure time is 10 sec
+        detection_time = 2
     else:
         detection_time = 10 # 5 min if exposure time is 30 sec
     detection_i = detection_time - 1 # the first image will be detected
@@ -176,16 +184,20 @@ if __name__ == "__main__":
             picam2.capture_file(f"{path_local}{now_datetime}.jpg")
         # if night run detection every a few images
         if(now_time >= sunset_time and now_time <= sunrise_time):
-            detection_i = detection_i + 1
-            if(detection_i == detection_time):
+            if DEMO:
                 run_detection(now_datetime)
-                detection_i = 0
+                time.sleep(20)
+            else:
+                detection_i = detection_i + 1
+                if(detection_i == detection_time):
+                    run_detection(now_datetime)
+                    detection_i = 0
         else:
             # if daytime, run detection on every short-exposure image (5mins between images)
             run_detection(now_datetime)
             if DEMO:
                 os.system(f"scp {path_local}{now_datetime}.jpg ece492@{ip_server}:{path_server_short_expo}")
-                time.sleep(1*60) # 1 min
+                time.sleep(10)
             else:
                 time.sleep(5*60) # 5 mins
         os.system(f"rm {path_local}{now_datetime}.jpg")
