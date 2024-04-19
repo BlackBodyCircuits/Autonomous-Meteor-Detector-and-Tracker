@@ -58,12 +58,33 @@ function get_img(ID){
     xhr.send();
 }
 
+// function format_logf(logf){
+//     var log_str = "";
+//     Object.entries(logf).forEach(([ID, cam]) => {
+//     for(let i=0;i<logf.length;i++){
+//         logf
+//     }
+// }
+
 function handle_res(res, server_addr){
     // Access the parsed JSON response
     console.log(res); // Or do something with the JSON data
     var im_name = res["name"]
     var im_src = server_addr + res["img_url"]
-    var log_file = server_addr + res["log_url"]
+    var log_file = res["log_url"]
+
+    /* Split text on new lines */
+    var outter = log_file.split('\n');
+    console.log(outter);
+    /* Remove empty paragraphs */
+    var clean = outter.filter(function(n){ return n });
+    /* Join back with paragraph tags */
+    var joined = clean.join('</p><p>');
+    joined = joined.replace(/\&\&/gi, "<i>")
+    joined = joined.replace(/\$\$/gi, "</i>")
+    /* Enclose with paragraph */
+    log_file = '<b>'+joined+'</b>';
+
     // var log_file = JSON.stringify(res["log_url"])
     var cam = res["camera"]
     var loc = res["loc"]
@@ -80,7 +101,7 @@ function handle_res(res, server_addr){
     raw = im_src+"&raw=True"
     // document.getElementById('raw-link').href = im_src+"&raw=True";
     console.log(log_file)
-    document.getElementById('status-link').src = log_file;
+    document.getElementById('status-link').innerHTML = log_file;
 }
 
 //function will be called on the window load event

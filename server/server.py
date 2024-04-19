@@ -54,6 +54,8 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
             cam = metadata["Camera"]
             date = metadata["date"]
             loc = metadata["location"]
+        
+        log_txt = self.load_log_file(f"/{cam}.txt")
 
         res = {
                 "name": f"{name}", 
@@ -61,7 +63,7 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
                "date": date, 
                "loc": loc, 
                "img_url": f"/{name}.jpg", 
-               "log_url": f"/{cam}.txt"
+               "log_url": log_txt
                }
         res = json.dumps(res)
         self.wfile.write(f"{res}".encode())
@@ -90,15 +92,9 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
     def _send_log(self):
         self.send_response(200)
         self._set_header(content_type="text/html")
-        with open("./server_logs" + self.path, 'rb') as content:
-            log_data = json.load(content)
-            pretty_json_str = pprint.pformat(log_data)
-            rem = {"{": "\n", "}": "", "'": ""}
-            for char in rem.keys():
-                pretty_json_str = pretty_json_str.replace(char, rem[char])
+        log_txt = self.load_log_file(self.path)
 
-            print(pretty_json_str)
-            self.wfile.write(pretty_json_str.encode('utf-8'))
+        self.wfile.write(log_txt.encode('utf-8'))
 
     def _load_imgs(self):
         self.send_response(200)
@@ -168,7 +164,6 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         res = json.dumps(res)
         self.wfile.write(f"{res}".encode())
 
-
     def _not_found(self):
         self.send_response(401)
         self._set_header(content_type="text/html")
@@ -181,6 +176,16 @@ class HTTPRequestHandler(BaseHTTPRequestHandler):
         self.send_header('Access-Control-Allow-Headers', 'Origin, Content-Type')
         self.end_headers()
 
+    def load_log_file(self, fname):
+        with open("./server_logs" + fname, 'rb') as content:
+            log_data = json.load(content)
+            pretty_json_str = pprint.pformat(log_data)[1:-1]
+            rem = {"{": "\n&&", "}": "$$", "'": ""}
+            for char in rem.keys():
+                pretty_json_str = pretty_json_str.replace(char, rem[char])
+
+            print(pretty_json_str)
+        return pretty_json_str
 
 
 class custom_HTTPServer(HTTPServer):
