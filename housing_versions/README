@@ -1,0 +1,21 @@
+Our housing versions were printed using PETG plastic. This type of plastic is resistant to UV(because this housing must survive the outdoors) and quite common.
+We printed using mostly default settings. Our housings were made on Prusa Mk 4 printers with a 0.4mm nozzle head. An infill of 25% with SLOW or DETAILED print settings was used.
+Place a support blocker over the threaded hole in the base of the housing. This prevents support material from being used in this hole, which is impossible(from our experience) to get out.
+
+M3x10mm screws were used to secure the door tightly, such as can be found at the following link: https://shorturl.at/hzD48
+The corresponding M3 threaded inserts can be found at the following link: https://shorturl.at/oswBJ
+
+M3 threaded inserts were inserted using a soldering iron. After placing the threaded insert in the hole in the block of material attached to the door of the housing,
+heat up the iron to about 350 degrees Centigrade. Then, as straight as possible, push the threaded insert into the block of material with the tip of the soldering iron.
+Push until the threaded insert is at least flush with its block, or farther depending on the length of screws being used. Slowly retract the soldering iron. Allow the
+insert to cool down and firmly attach itself to its block. Then close the door and ensure the insert can be seen from the corresponding hole of the outside of the
+housing. Insert a screw and tighten with an Allen key. Do not overtighten.
+
+Liquid silicone was used to seal up cracks in the housing. Using a thin piece of material, such as the end of a ziptie, a thin layer of silicone could be applied around the edges of the door.
+When shut tightly, this silicone would form a tight seal. Silicone could also be placed in the slots around the top of the housing, where the acrylic plate slides into. This forms a seal
+between the plate and the housing. Keep in mind, this will likely permanently attach the plate to the housing. Intensive testing should be done before placing the housing outside to ensure a weatherproof
+seal has been formed.
+
+We printed the housing with the door open to ensure the door was separated from the rest of the housing.
+
+All housing .STL files were designed using Tinkercad. Errors can occur when transferring to other 3D design software.
